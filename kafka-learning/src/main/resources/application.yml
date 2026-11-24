@@ -3,14 +3,29 @@ spring:
   application:
     name: kafka-learning
 
+  datasource:
+    url: jdbc:mysql://localhost:3306/kafka_learning
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
   kafka:
     bootstrap-servers: localhost:9092
+
+    listener:
+      ack-mode: manual
 
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
 
     consumer:
+      enable-auto-commit: false
       group-id: order-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

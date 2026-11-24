@@ -11,23 +11,18 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class OrderProducer {
 
-    private static final String TOPIC = "order-events";
+	private static final String TOPIC = "order-events";
 
-    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+	private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
 
-    public OrderProducer(KafkaTemplate<String, OrderEvent> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
+	public OrderProducer(KafkaTemplate<String, OrderEvent> kafkaTemplate) {
+		this.kafkaTemplate = kafkaTemplate;
+	}
 
-    public CompletableFuture<SendResult<String, OrderEvent>>
-            sendOrderEvent(OrderEvent orderEvent) {
+	public CompletableFuture<SendResult<String, OrderEvent>> sendOrderEvent(OrderEvent orderEvent) {
 
-        return kafkaTemplate.send(
-                TOPIC,
-                orderEvent.getOrderId(),
-                orderEvent
-        );
-    }
+		return kafkaTemplate.send(TOPIC, orderEvent.getOrderId(), orderEvent);
+	}
 }
 
 //@Servic - Registers this class as a Spring service

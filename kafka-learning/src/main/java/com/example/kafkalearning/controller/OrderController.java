@@ -12,26 +12,21 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderProducer orderProducer;
+	private final OrderProducer orderProducer;
 
-    public OrderController(OrderProducer orderProducer) {
-        this.orderProducer = orderProducer;
-    }
+	public OrderController(OrderProducer orderProducer) {
+		this.orderProducer = orderProducer;
+	}
 
-    @PostMapping("/publish")
-    public CompletableFuture<ResponseEntity<String>> publishOrder(
-            @RequestBody OrderEvent orderEvent) {
+	@PostMapping("/publish")
+	public CompletableFuture<ResponseEntity<String>> publishOrder(@RequestBody OrderEvent orderEvent) {
 
-        return orderProducer.sendOrderEvent(orderEvent)
-                .thenApply(result -> ResponseEntity.ok(
-                        "Order event published successfully. Partition: "
-                                + result.getRecordMetadata().partition()
-                                + ", Offset: "
-                                + result.getRecordMetadata().offset()
-                ))
-                .exceptionally(ex -> ResponseEntity.internalServerError()
-                        .body("Failed to publish event: " + ex.getMessage()));
-    }
+		return orderProducer.sendOrderEvent(orderEvent)
+				.thenApply(result -> ResponseEntity.ok("Order event published successfully. Partition: "
+						+ result.getRecordMetadata().partition() + ", Offset: " + result.getRecordMetadata().offset()))
+				.exceptionally(
+						ex -> ResponseEntity.internalServerError().body("Failed to publish event: " + ex.getMessage()));
+	}
 }
 
 //Understand the API
