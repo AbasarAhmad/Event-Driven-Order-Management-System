@@ -2,10 +2,12 @@
 package com.example.kafkalearning.service;
 
 import com.example.kafkalearning.entity.Order;
+import com.example.kafkalearning.entity.OrderStatus;
 import com.example.kafkalearning.repository.OrderRepository;
 import com.example.kafkalearning.repository.ProcessedEventRepository;
 import com.example.kafkalearning.event.OrderEvent;
-
+import com.example.kafkalearning.event.PaymentRequestEvent;
+import com.example.kafkalearning.producer.PaymentProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +19,14 @@ public class OrderProcessingService {
 
 	private final OrderRepository orderRepository;
 	private final ProcessedEventRepository processedEventRepository;
+	private final PaymentProducer paymentProducer;
 
-	public OrderProcessingService(OrderRepository orderRepository, ProcessedEventRepository processedEventRepository) {
+	public OrderProcessingService(OrderRepository orderRepository, ProcessedEventRepository processedEventRepository,
+			PaymentProducer paymentProducer) {
 
 		this.orderRepository = orderRepository;
 		this.processedEventRepository = processedEventRepository;
+		this.paymentProducer = paymentProducer;
 	}
 
 	@Transactional
@@ -41,11 +46,15 @@ public class OrderProcessingService {
 			throw new IllegalArgumentException("Invalid order amount!");
 		}
 
-		Order order = new Order(event.getOrderId(), BigDecimal.valueOf(event.getAmount()), "CREATED");
+		Order order = new Order(event.getOrderId(), BigDecimal.valueOf(event.getAmount()), OrderStatus.CREATED);
 
 		orderRepository.save(order);
-
 		System.out.println("Order saved successfully: " + event.getOrderId());
+		PaymentRequestEvent paymentEvent = new PaymentRequestEvent(event.getEventId(), event.getOrderId(),
+				BigDecimal.valueOf(event.getAmount()));
+
+		paymentProducer.sendPaymentRequest(paymentEvent);
+		System.out.println("Payment event published for order: " + event.getOrderId());
 
 		return true;
 	}

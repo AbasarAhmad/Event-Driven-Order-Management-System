@@ -26,11 +26,12 @@ public class Order {
 	@Column(nullable = false, precision = 12, scale = 2)
 	private BigDecimal amount;
 
-	private String status;
+	@Enumerated(EnumType.STRING)
+	private OrderStatus status;
 
 	private LocalDateTime createdAt;
 
-	public Order(String orderId, BigDecimal amount, String status) {
+	public Order(String orderId, BigDecimal amount, OrderStatus status) {
 
 		this.orderId = orderId;
 		this.amount = amount;
